@@ -8,8 +8,6 @@
 
             foreach (var arrangement in arrangements)
             {
-                arrangement.Cells[0, 0] = 5;
-
                 var heightOfCell = arrangement[0, 0];
                 arrangement.SetHeightAt(0,0, 5);
 
