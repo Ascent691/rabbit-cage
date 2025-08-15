@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 
 namespace Runner
 {
@@ -6,12 +7,11 @@ namespace Runner
     {
         static void Main(string[] args)
         {
-            // Uncomment to check against the answers
-            // var answers = File.ReadAllLines("1.ans");
-            
             var stopwatch = Stopwatch.StartNew();
             var arrangements = new RabbitHouseParser().Parse(File.ReadAllLines("1.in"));
             var parsingTimeStamp = stopwatch.Elapsed;
+
+            var stringBuilder = new StringBuilder(arrangements.Length);
 
             for (int i = 0; i < arrangements.Length; i++)
             {
@@ -46,20 +46,26 @@ namespace Runner
                     }
                 }
 
-                var output = $"Case #{i+1}: {totalAdded}";
-                Console.WriteLine(output);
-
-                // Uncomment to check against the answers
-                // if (output.Trim() != answers[i].Trim())
-                // {
-                //     Console.WriteLine($"!!!!!!!!!!!!!!!!!!!!!!!!!'{output}' different to '{answers[i]}'");
-                // }
+                stringBuilder.AppendLine($"Case #{i+1}: {totalAdded}");
             }
+
+            var output = stringBuilder.ToString();
+            Console.Write(output);
             
             stopwatch.Stop();
 
             Console.WriteLine($"Parsing Timestamp: {parsingTimeStamp.ToString()}");
             Console.WriteLine($"Total Timestamp: {stopwatch.Elapsed.ToString()}");
+
+            var calculatedAnswers = output.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var actualAnswers = File.ReadAllLines("1.ans");
+            for (int i = 0; i < calculatedAnswers.Count; i++)
+            {
+                if (calculatedAnswers[i] != actualAnswers[i])
+                {
+                    Console.WriteLine($"Difference detected, calculated: '{calculatedAnswers[i]}', answer: '{actualAnswers[i]}'");
+                }
+            }
         }
     }
 }
