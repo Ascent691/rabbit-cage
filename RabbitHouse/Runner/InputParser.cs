@@ -100,9 +100,9 @@ namespace Runner
 
         }
 
-        public int GetTotalAddedBlocks()
+        public long GetTotalAddedBlocks()
         {
-            var result = 0;
+            long result = 0;
 
             for (int row = 0; row < TotalRows; row++)
                 for (int column = 0; column < TotalColumns; column++)
