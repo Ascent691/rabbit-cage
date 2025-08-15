@@ -5,7 +5,7 @@ namespace Runner
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             var stopwatch = Stopwatch.StartNew();
             var arrangements = new RabbitHouseParser().Parse(File.ReadAllLines("1.in"));
@@ -16,14 +16,14 @@ namespace Runner
             for (int i = 0; i < arrangements.Length; i++)
             {
                 var totalAdded = 0L;
-                var cells = arrangements[i].MapInputCells((row, column, height) =>
+                var arrangement = arrangements[i];
+                var cells = arrangement.MapInputCells((row, column, height) =>
                     new Cell(row: row, column: column, height: height));
-
                 
                 var nextPriorityQueue = new PriorityQueue<Cell, int>();
                 foreach (var cell in cells)
                 {
-                    cell.ReferenceNeighbours(cells);
+                    cell.ReferenceNeighbours(cells, arrangement.TotalRows, arrangement.TotalColumns);
                     nextPriorityQueue.Enqueue(cell, 0 - cell.Height);
                 }
 
