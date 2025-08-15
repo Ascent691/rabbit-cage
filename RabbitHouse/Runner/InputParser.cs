@@ -110,5 +110,33 @@ namespace Runner
 
             return result;
         }
+
+        public int GetHeighestCellHeight()
+        {
+            int value = 0;
+
+            for (int row = 0; row < TotalRows; row++)
+                for (int column = 0; column < TotalColumns; column++)
+                    if (value < _cells[row, column])
+                    {
+                        value = _cells[row, column];
+                    }
+
+            return value;
+        }
+
+        public void Visualise()
+        {
+            var longestHeightToOutput = GetHeighestCellHeight().ToString().Length;
+
+            for (int row = 0; row < TotalRows; row++)
+            {
+                var line = "";
+
+                for (int column = 0; column < TotalColumns; column++)
+                    line += _cells[row, column].ToString($"D{longestHeightToOutput}") + " ";
+                Console.WriteLine(line);
+            }
+        }
     }
 }
