@@ -9,6 +9,14 @@
             foreach (var arrangement in arrangements)
             {
                 arrangement.Cells[0, 0] = 5;
+
+                var heightOfCell = arrangement[0, 0];
+                arrangement.SetHeightAt(0,0, 5);
+
+                arrangement.SetHeightAt(1, 0, 5);
+                bool isSafe = arrangement.IsSafe();
+                var changed = arrangement.GetTotalAddedBlocks();
+
             }
 
 

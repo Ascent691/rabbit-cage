@@ -41,17 +41,74 @@ namespace Runner
 
     public class RabbitHouseArrangement
     {
+
+        private readonly int[,] _immutableCells;
+        private readonly int[,] _cells;
+
         public int TotalRows { get; }
         public int TotalColumns { get; }
-        public readonly int[,] Cells;
+
+        public int this[int row, int column] { get { return _cells[row,column]; } }
 
 
 
         public RabbitHouseArrangement(int[,] cells, int totalRows, int totalColumns)
         {
-            this.Cells = cells;
+            this._immutableCells = cells;
+            this._cells = new int[totalRows, totalColumns];
+            Array.Copy(cells, _cells, cells.Length);
             TotalRows = totalRows;
             TotalColumns = totalColumns;
+        }
+
+
+        public int GetHeightAt(int row, int column)
+        {
+            return _cells[row, column];
+        }
+
+        public void SetHeightAt(int row, int column, int value)
+        {
+            if (value < _immutableCells[row, column])
+                throw new ArgumentOutOfRangeException("value", value, $"Cannot make cell [${row},${column}] have a height of ${value}, as that would be lower than its original height of ${_immutableCells[row, column]}.");
+            _cells[row, column] = value;
+        }
+
+        public bool IsSafe()
+        {
+            for (int row = 0; row < TotalRows; row++)
+                for (int column = 0; column < TotalColumns; column++)
+                {
+                    int fromHeight = _cells[row, column];
+
+                    for (int dR = -1; dR <= 1; dR++)
+                    {
+                        if (row + dR < 0 || row + dR >= TotalRows) continue;
+                        for (int dC = -1; dC <= 1; dC++)
+                        {
+                            if (column + dC < 0 || column + dC >= TotalColumns) continue;
+                            int toHeight = _cells[row + dR, column + dC];
+                            if (Math.Abs(toHeight - fromHeight) > 1)
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }
+
+            return true;
+
+        }
+
+        public int GetTotalAddedBlocks()
+        {
+            var result = 0;
+
+            for (int row = 0; row < TotalRows; row++)
+                for (int column = 0; column < TotalColumns; column++)
+                    result += _cells[row, column] - _immutableCells[row, column];
+
+            return result;
         }
     }
 }
