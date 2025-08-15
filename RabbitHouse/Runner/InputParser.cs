@@ -26,7 +26,7 @@ namespace Runner
                 for (int k = 0; k < numRows; k++)
                 {
                     parts = lines[lineIndex++].Split(' ');
-                    for (int j = 0; j < numRows; j++)
+                    for (int j = 0; j < numColumns; j++)
                     {
                         cells[k, j] = Int32.Parse(parts[j]);
                     }
@@ -137,6 +137,8 @@ namespace Runner
                     line += _cells[row, column].ToString($"D{longestHeightToOutput}") + " ";
                 Console.WriteLine(line);
             }
+
+            Console.WriteLine();
         }
     }
 }
