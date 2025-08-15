@@ -32,7 +32,7 @@ namespace Runner
                     }
                 }
 
-                result[i] = new RabbitHouseArrangement(cells);
+                result[i] = new RabbitHouseArrangement(cells, numRows, numColumns);
             }
 
             return result;
@@ -41,11 +41,17 @@ namespace Runner
 
     public class RabbitHouseArrangement
     {
-        private readonly int[,] _cells;
+        public int TotalRows { get; }
+        public int TotalColumns { get; }
+        public readonly int[,] Cells;
 
-        public RabbitHouseArrangement(int[,] cells)
+
+
+        public RabbitHouseArrangement(int[,] cells, int totalRows, int totalColumns)
         {
-            this._cells = cells;
+            this.Cells = cells;
+            TotalRows = totalRows;
+            TotalColumns = totalColumns;
         }
     }
 }
