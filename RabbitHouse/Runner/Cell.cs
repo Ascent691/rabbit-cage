@@ -17,7 +17,7 @@ public class Cell(int row, int column, int height)
                (_west == null || Height - _west.Height <= 1);
     }
 
-    public int BalanceNeighbours()
+    public int MakeSafe()
     {
         var totalAdded = 0;
 

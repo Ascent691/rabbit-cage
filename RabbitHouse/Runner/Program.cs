@@ -1,21 +1,25 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Text;
 
 namespace Runner
 {
     internal class Program
     {
+        private static object _lock = new object();
+        
         static void Main()
         {
             var stopwatch = Stopwatch.StartNew();
             var arrangements = new RabbitHouseParser().Parse(File.ReadAllLines("1.in"));
             var parsingTimeStamp = stopwatch.Elapsed;
 
-            var stringBuilder = new StringBuilder(arrangements.Length);
-            
-            for (int i = 0; i < arrangements.Length; i++)
+            // var stringBuilder = new StringBuilder(arrangements.Length);
+            var concurrentDictionary = new ConcurrentDictionary<int, long>();
+
+            Parallel.For(0, arrangements.Length, i =>
             {
-                var totalAdded = 0L;
+                concurrentDictionary[i] = 0L;
                 var arrangement = arrangements[i];
                 var cells = arrangement.MapInputCells((row, column, height) =>
                     new Cell(row: row, column: column, height: height));
@@ -34,7 +38,7 @@ namespace Runner
 
                     while (priorityQueue.TryDequeue(out var cell, out _))
                     {
-                        totalAdded += cell.BalanceNeighbours();
+                        concurrentDictionary[i] += cell.MakeSafe();
                     }
                     
                     foreach (var cell in cells)
@@ -45,12 +49,14 @@ namespace Runner
                         }
                     }
                 }
+            });
 
-                stringBuilder.AppendLine($"Case #{i+1}: {totalAdded}");
+            var stringBuilder = new StringBuilder(concurrentDictionary.Count);
+            foreach (var l in concurrentDictionary)
+            {
+                stringBuilder.AppendLine($"Case #{l.Key + 1}: {l.Value}");
             }
-
-            var output = stringBuilder.ToString();
-            Console.Write(output);
+            Console.Write(stringBuilder);
             
             stopwatch.Stop();
 
