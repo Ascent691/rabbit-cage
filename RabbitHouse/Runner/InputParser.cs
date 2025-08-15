@@ -16,8 +16,6 @@ namespace Runner
             var totalArrangements = Int32.Parse(lines[lineIndex++].Trim());
             RabbitHouseArrangement[] result = new RabbitHouseArrangement[totalArrangements];
             for (int i = 0; i < totalArrangements; i++) {
-
-                
                 string[] parts = lines[lineIndex++].Split(' ');
                 int numRows = Int32.Parse(parts[0]);
                 int numColumns = Int32.Parse(parts[1]);
@@ -44,6 +42,8 @@ namespace Runner
 
         private readonly int[,] _immutableCells;
         private readonly int[,] _cells;
+
+        private int lastRegisteredMaxHeight = 0;
 
         public int TotalRows { get; }
         public int TotalColumns { get; }
@@ -119,13 +119,15 @@ namespace Runner
                 for (int column = 0; column < TotalColumns; column++)
                     if (value < _cells[row, column])
                     {
+                        if(lastRegisteredMaxHeight != 0 && _cells[row, column] >= lastRegisteredMaxHeight) continue;
                         value = _cells[row, column];
                     }
+            lastRegisteredMaxHeight = value;
 
-            return value;
+            return lastRegisteredMaxHeight;
         }
 
-        public void Visualise()
+        public void Visualise(int blocksAdded)
         {
             var longestHeightToOutput = GetHeighestCellHeight().ToString().Length;
 
@@ -138,7 +140,75 @@ namespace Runner
                 Console.WriteLine(line);
             }
 
-            Console.WriteLine();
+            Console.WriteLine($"{blocksAdded}\n");
+        }
+
+        public IEnumerable<int[,]> FindAllCellsOfHeight(int height)
+        {
+            var cellsOfHeight = new int[,]{};
+
+            for (int x = 0; x < _cells.GetLength(0); x++)
+            {
+                for (int y = 0; y < _cells.GetLength(1); y++)
+                {
+                    if (_cells[x, y] == height)
+                    {
+                        var newCells = new int[cellsOfHeight.GetLength(0) + 1, cellsOfHeight.GetLength(1) + 1];
+                        Array.Copy(cellsOfHeight, newCells, cellsOfHeight.Length);
+                        yield return new int[,]{ {x ,y }};
+                    }
+                }
+            }
+        }
+        
+        public List<(int,int[])> GetAdjacentValues(int x, int y, bool includeDiagonals = false)
+        {
+            List<(int,int[])> adjacentValues = new List<(int,int[])>();
+            int rows = _cells.GetLength(0);
+            int cols = _cells.GetLength(1);
+
+            // Iterate through possible offsets for adjacent cells
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                for (int dy = -1; dy <= 1; dy++)
+                {
+                    // Skip the center cell itself
+                    if (dx == 0 && dy == 0)
+                        continue;
+
+                    // Skip diagonal cells if not included
+                    if (!includeDiagonals && (dx != 0 && dy != 0))
+                        continue;
+
+                    int newX = x + dx;
+                    int newY = y + dy;
+
+                    // Check if the new coordinates are within array bounds
+                    if (newX >= 0 && newX < rows && newY >= 0 && newY < cols)
+                    {
+                        adjacentValues.Add((_cells[newX, newY], [newX, newY]));
+                    }
+                }
+            }
+            return adjacentValues;
+        }
+
+        public int SetSurroundingCellsToSafe(int cellHeight, int[] cellLocation)
+        {
+            var blocksAdded = 0;
+            var adjacentCells = GetAdjacentValues(cellLocation[0], cellLocation[1]);
+            for (int i = 0; i < adjacentCells.Count; i++)
+            {
+                int newCellHeight = adjacentCells[i].Item1;
+                if (newCellHeight >= cellHeight) continue;
+                while (newCellHeight < cellHeight - 1)
+                {
+                    blocksAdded++;
+                    newCellHeight++;
+                }
+                _cells[adjacentCells[i].Item2[0], adjacentCells[i].Item2[1]] = newCellHeight;
+            }
+            return blocksAdded;
         }
     }
 }

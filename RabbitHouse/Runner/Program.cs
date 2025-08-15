@@ -1,24 +1,38 @@
 ﻿namespace Runner
 {
-    internal class Program
+    class Program
     {
         static void Main(string[] args)
         {
-            var arrangements = new RabbitHouseParser().Parse(File.ReadAllLines("input.txt"));
+            var input = File.ReadAllLines("input.txt");
+            var arrangements = new RabbitHouseParser().Parse(input);
 
             foreach (var arrangement in arrangements)
             {
-                var heightOfCell = arrangement[0, 0];
-                arrangement.SetHeightAt(0,0, 5);
-
-                arrangement.SetHeightAt(1, 0, 5);
                 bool isSafe = arrangement.IsSafe();
-                var changed = arrangement.GetTotalAddedBlocks();
-
+                while (!isSafe)
+                {
+                    RunCellArranger(arrangement);
+                    isSafe = arrangement.IsSafe();
+                }
+                
             }
+        }
 
+        static void RunCellArranger(RabbitHouseArrangement arrangement)
+        {
+            var blocksAddedToArrangement = 0;
 
-            Console.WriteLine("Hello, World!");
+            var heighestCellHeight = arrangement.GetHeighestCellHeight();
+            var cellsToFocus = arrangement.FindAllCellsOfHeight(heighestCellHeight).ToList();
+            for(int x = 0; x < cellsToFocus.Count(); x++)
+            {
+                var location = new int[]{cellsToFocus[x][0,0], cellsToFocus[x][0,1]};
+                var safeCellOutput = arrangement.SetSurroundingCellsToSafe(heighestCellHeight, location);
+                blocksAddedToArrangement += safeCellOutput;
+            }
+                
+            arrangement.Visualise(blocksAddedToArrangement);
         }
     }
 }
