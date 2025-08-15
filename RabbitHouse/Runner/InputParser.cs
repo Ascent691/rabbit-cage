@@ -140,5 +140,43 @@ namespace Runner
 
             Console.WriteLine();
         }
+        public bool RaiseNeighborsOfAllHighCellsWithoutCorners()
+        {
+            var anyChanged = false;
+            var highest = GetHeighestCellHeight();
+
+            bool IsCorner(int row, int column) =>
+                (row == 0 && column == 0) || (row == 0 && column == TotalColumns - 1) ||
+                (row == TotalRows - 1 && column == 0) || (row == TotalRows - 1 && column == TotalColumns - 1);
+
+            (int rowDirection, int columnDirection)[] directions = [(-1, 0), (1, 0), (0, -1), (0, 1)];
+            while (highest > 0)
+            {
+                for (var row = 0; row < TotalRows; row++)
+                {
+                    for (var column = 0; column < TotalColumns; column++)
+                    {
+                        if (_cells[row, column] != highest) continue;
+
+                        foreach (var (rowDirection, columnDirection) in directions)
+                        {
+                            int neighborRow = row + rowDirection, neighborColumn = column + columnDirection;
+                            if (neighborRow >= 0 && neighborRow < TotalRows && neighborColumn >= 0 && neighborColumn < TotalColumns && !IsCorner(neighborRow, neighborColumn))
+                            {
+                                if (_cells[neighborRow, neighborColumn] < highest - 1)
+                                {
+                                    SetHeightAt(neighborRow, neighborColumn, highest - 1);
+                                    anyChanged = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                highest--;
+            }
+
+            return anyChanged;
+        }
+
     }
 }

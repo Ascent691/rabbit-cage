@@ -6,19 +6,26 @@
         {
             var arrangements = new RabbitHouseParser().Parse(File.ReadAllLines("input.txt"));
 
-            foreach (var arrangement in arrangements)
+            for (var i = 0; i < arrangements.Length; i++)
             {
-                var heightOfCell = arrangement[0, 0];
-                arrangement.SetHeightAt(0,0, 5);
+                var arrangement = arrangements[i];
 
-                arrangement.SetHeightAt(1, 0, 5);
-                bool isSafe = arrangement.IsSafe();
+                Console.WriteLine($"Original arrangement:");
+                arrangement.Visualise();
+
+                var heightOfCell = arrangement.GetHeighestCellHeight();
+
+                arrangement.RaiseNeighborsOfAllHighCellsWithoutCorners();
+
                 var changed = arrangement.GetTotalAddedBlocks();
+                var isSafe = arrangement.IsSafe();
 
+                Console.WriteLine("Final arrangement:");
+
+                Console.WriteLine($"Case #{i + 1}: Added Blocks = {changed}, Safe = {isSafe}");
+                arrangement.Visualise();
             }
 
-
-            Console.WriteLine("Hello, World!");
         }
     }
 }
