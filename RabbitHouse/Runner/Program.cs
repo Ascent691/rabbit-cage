@@ -6,70 +6,69 @@ namespace Runner
 {
     internal class Program
     {
-        private static object _lock = new object();
-        
         static void Main()
         {
             var stopwatch = Stopwatch.StartNew();
             var arrangements = new RabbitHouseParser().Parse(File.ReadAllLines("1.in"));
             var parsingTimeStamp = stopwatch.Elapsed;
 
-            // var stringBuilder = new StringBuilder(arrangements.Length);
-            var concurrentDictionary = new ConcurrentDictionary<int, long>();
+            var addedTotalForAllArrangements = new ConcurrentDictionary<int, RefCount>();
 
-            Parallel.For(0, arrangements.Length, i =>
+            Parallel.For(0, arrangements.Length, caseNumber =>
             {
-                concurrentDictionary[i] = 0L;
-                var arrangement = arrangements[i];
+                var addedTotalForArrangement = new RefCount();
+                addedTotalForAllArrangements[caseNumber] = addedTotalForArrangement;
+                var arrangement = arrangements[caseNumber];
+                
                 var cells = arrangement.MapInputCells((row, column, height) =>
                     new Cell(row: row, column: column, height: height));
                 
-                var nextPriorityQueue = new PriorityQueue<Cell, int>();
+                var unsafeCellQueue = new PriorityQueue<Cell, int>();
                 foreach (var cell in cells)
                 {
                     cell.ReferenceNeighbours(cells, arrangement.TotalRows, arrangement.TotalColumns);
-                    nextPriorityQueue.Enqueue(cell, 0 - cell.Height);
+                    unsafeCellQueue.Enqueue(cell, 0 - cell.Height);
                 }
 
-                while (nextPriorityQueue.Count > 0)
+                while (unsafeCellQueue.Count > 0)
                 {
-                    var priorityQueue = nextPriorityQueue;
-                    nextPriorityQueue = new PriorityQueue<Cell, int>();
+                    var queueSnapshot = unsafeCellQueue;
+                    unsafeCellQueue = new PriorityQueue<Cell, int>();
 
-                    while (priorityQueue.TryDequeue(out var cell, out _))
+                    while (queueSnapshot.TryDequeue(out var cell, out _))
                     {
-                        concurrentDictionary[i] += cell.MakeSafe();
+                        addedTotalForArrangement.Count += cell.MakeSafe();
                     }
                     
                     foreach (var cell in cells)
                     {
                         if (!cell.IsSafe())
                         {
-                            nextPriorityQueue.Enqueue(cell, 0 - cell.Height);
+                            unsafeCellQueue.Enqueue(cell, 0 - cell.Height);
                         }
                     }
                 }
             });
 
-            var stringBuilder = new StringBuilder(concurrentDictionary.Count);
-            foreach (var l in concurrentDictionary)
+            var consoleOutput = new StringBuilder(addedTotalForAllArrangements.Count);
+            foreach (var indexedAddedTotal in addedTotalForAllArrangements)
             {
-                stringBuilder.AppendLine($"Case #{l.Key + 1}: {l.Value}");
+                consoleOutput.AppendLine($"Case #{indexedAddedTotal.Key + 1}: {indexedAddedTotal.Value.Count}");
             }
-            Console.Write(stringBuilder);
+            Console.Write(consoleOutput);
             
             stopwatch.Stop();
 
             Console.WriteLine($"Parsing Timestamp: {parsingTimeStamp.ToString()}");
             Console.WriteLine($"Total Timestamp: {stopwatch.Elapsed.ToString()}");
 
-            var calculatedAnswers = output.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).ToList();
             var actualAnswers = File.ReadAllLines("1.ans");
-            for (int i = 0; i < calculatedAnswers.Count; i++)
+            for (int i = 0; i < addedTotalForAllArrangements.Count; i++)
             {
-                if (calculatedAnswers[i] != actualAnswers[i])
+                var calculatedAnswer = $"Case #{i+1}: {addedTotalForAllArrangements[i].Count}";
+                if (calculatedAnswer != actualAnswers[i])
                 {
-                    Console.WriteLine($"Difference detected, calculated: '{calculatedAnswers[i]}', answer: '{actualAnswers[i]}'");
+                    Console.WriteLine($"Difference detected, calculated: '{calculatedAnswer}', answer: '{actualAnswers[i]}'");
                 }
             }
         }
