@@ -12,7 +12,7 @@ namespace Runner
             var parsingTimeStamp = stopwatch.Elapsed;
 
             var stringBuilder = new StringBuilder(arrangements.Length);
-
+            
             for (int i = 0; i < arrangements.Length; i++)
             {
                 var totalAdded = 0L;
@@ -66,85 +66,6 @@ namespace Runner
                     Console.WriteLine($"Difference detected, calculated: '{calculatedAnswers[i]}', answer: '{actualAnswers[i]}'");
                 }
             }
-        }
-    }
-}
-
-public class Cell(int row, int column, int height)
-{
-    public int Height { get; private set; } = height;
-    private int Column { get; } = column;
-    private int Row { get; } = row;
-    private Cell? North { get; set; }
-    private Cell? East { get; set; }
-    private Cell? South { get; set; }
-    private Cell? West { get; set; }
-
-    public bool IsSafe()
-    {
-        var northSafe = North == null ||  Height - North.Height <= 1;
-        var eastSafe = East == null || Height - East.Height <= 1;
-        var southSafe = South == null || Height - South.Height <= 1;
-        var westSafe = West == null || Height - West.Height <= 1;
-        
-        return northSafe && eastSafe &&  southSafe && westSafe;
-    }
-
-    public int BalanceNeighbours()
-    {
-        var totalAdded = 0;
-
-        if (North is not null && Height - North.Height > 1)
-        {
-            var amountToAdd = Height - North.Height - 1;
-            North.Height += amountToAdd;
-            totalAdded += amountToAdd;
-        }
-        
-        if (East is not null && Height - East.Height > 1)
-        {
-            var amountToAdd = Height - East.Height - 1;
-            East.Height += amountToAdd;
-            totalAdded += amountToAdd;
-        }
-        
-        if (South is not null && Height - South.Height > 1)
-        {
-            var amountToAdd = Height - South.Height - 1;
-            South.Height += amountToAdd;
-            totalAdded += amountToAdd;
-        }
-        
-        if (West is not null && Height - West.Height > 1)
-        {
-            var amountToAdd = Height - West.Height - 1;
-            West.Height += amountToAdd;
-            totalAdded += amountToAdd;
-        }
-        
-        return totalAdded;
-    }
-
-    public void ReferenceNeighbours(Cell[,] allCells)
-    {
-        if (Row > 0 && Row <= allCells.GetLength(0) - 1)
-        {
-            North = allCells[Row - 1, Column];
-        }
-        
-        if (Row < allCells.GetLength(0) - 1)
-        {
-            South = allCells[Row + 1, Column];
-        }
-
-        if (Column > 0 && Column <= allCells.GetLength(1) - 1)
-        {
-            West = allCells[Row, Column - 1];
-        }
-
-        if (Column < allCells.GetLength(1) - 1)
-        {
-            East = allCells[Row, Column + 1];
         }
     }
 }
