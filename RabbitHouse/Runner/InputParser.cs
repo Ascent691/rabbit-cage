@@ -141,5 +141,19 @@ namespace Runner
 
             Console.WriteLine();
         }
+
+        public T[,] MapInputCells<T>(Func<int, int, int, T> map)
+        {
+            var output = new T[TotalRows, TotalColumns];
+            for (int row = 0; row < TotalRows; row++)
+            {
+                for (int column = 0; column < TotalColumns; column++)
+                {
+                    output[row, column] = map(row, column, _immutableCells[row, column]);
+                }
+            }
+
+            return output;
+        }
     }
 }
