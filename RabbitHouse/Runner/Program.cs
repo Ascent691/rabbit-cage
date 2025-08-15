@@ -5,15 +5,15 @@
         static void Main(string[] args)
         {
             var arrangements = new RabbitHouseParser().Parse(File.ReadAllLines("1.in"));
+            var answers = new long[arrangements.Length];
+            var currCase = 0;
 
             foreach (var arrangement in arrangements)
             {
                 var rows = arrangement.TotalRows;
                 var cols = arrangement.TotalColumns;
-                //var checkedJumps = new HashSet<Jump>();
 
                 var unsafeJumps = new HashSet<Jump>();
-                var uncheckedJumps = new HashSet<Jump>();
 
                 do
                 {
@@ -28,7 +28,6 @@
                             {
                                 var h = Math.Abs(arrangement[y, x] - arrangement[y, x + 1]);
                                 var jump = new Jump(new Cell(y, x), new Cell(y, x + 1));
-                                //checkedJumps.Add(jump);
                                 if (h > 1)
                                 {
                                     unsafeJumps.Add(jump);
@@ -39,7 +38,6 @@
                             {
                                 var h = Math.Abs(arrangement[y, x] - arrangement[y + 1, x]);
                                 var jump = new Jump(new Cell(y, x), new Cell(y + 1, x));
-                                //checkedJumps.Add(jump);
                                 if (h > 1)
                                 {
                                     unsafeJumps.Add(jump);
@@ -63,24 +61,19 @@
                         }
                     }
                 } while (unsafeJumps.Count != 0);
-                
 
-                //Console.WriteLine(checkedJumps.Count);
-                //Console.WriteLine(unsafeJumps.Count);
 
-                //arrangement.Visualise();
-                //Console.WriteLine(arrangement.IsSafe());
-                Console.WriteLine(arrangement.GetTotalAddedBlocks());
+                answers[currCase++] = arrangement.GetTotalAddedBlocks();
             }
+
+            var counter = 1;
+            var ans = answers.Select(a => $"Case #{counter++}: {a}");
+            File.WriteAllLines("answers.txt", ans);
+            Console.WriteLine("Done");
         }
 
         private record Cell(int Row, int Col);
 
         private record Jump(Cell A, Cell B);
-
-        static void CheckAdjacent()
-        {
-
-        }
     }
 }
