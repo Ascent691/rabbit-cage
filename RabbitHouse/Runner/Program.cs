@@ -9,7 +9,7 @@ namespace Runner
             var stopwatch = Stopwatch.StartNew();
             var arrangements = new RabbitHouseParser().Parse(File.ReadAllLines("1.in"));
             // var arrangements = new RabbitHouseParser().Parse(File.ReadAllLines("input.txt"));
-            var parsingTime = stopwatch.ElapsedMilliseconds;
+            var parsingTime = stopwatch.Elapsed;
 
             for (int i = 0; i < arrangements.Length; i++)
             {
@@ -51,8 +51,8 @@ namespace Runner
             
             stopwatch.Stop();
 
-            Console.WriteLine($"Parsing Time: {parsingTime}ms");
-            Console.WriteLine($"Total Time: {stopwatch.ElapsedMilliseconds}ms");
+            Console.WriteLine($"Parsing Time: {parsingTime.ToString()}");
+            Console.WriteLine($"Total Time: {stopwatch.Elapsed.ToString()}");
         }
     }
 }
