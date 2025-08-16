@@ -67,7 +67,7 @@ namespace Runner
             var actualAnswers = File.ReadAllLines("1.ans");
             for (int i = 0; i < addedTotalForAllArrangements.Count; i++)
             {
-                var calculatedAnswer = $"Case #{i+1}: {addedTotalForAllArrangements[i].Count}";
+                var calculatedAnswer = $"Case #{i + 1}: {addedTotalForAllArrangements[i].Count}";
                 if (calculatedAnswer != actualAnswers[i])
                 {
                     Console.WriteLine($"Difference detected, calculated: '{calculatedAnswer}', answer: '{actualAnswers[i]}'");
