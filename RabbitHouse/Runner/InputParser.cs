@@ -17,11 +17,11 @@ namespace Runner
             }
 
             var lineRanges = new Range[lines];
-            input.Split(lineRanges, "\r\n");
+            input.Split(lineRanges, "\r\n", StringSplitOptions.TrimEntries);
 
             int lineIndex = 0;
             var arrangementLineRange = lineRanges[lineIndex++];
-            var totalArrangements = ReadInt32(input, arrangementLineRange);
+            var totalArrangements = FastReadInt32(input, arrangementLineRange);
             var result = new RabbitHouseArrangement[totalArrangements];
             
             var sizeLineValueRanges = new Range[2];
@@ -29,8 +29,8 @@ namespace Runner
             for (int i = 0; i < totalArrangements; i++) {
                 var sizeLine = SplitLineIntoValueRanges(input, lineRanges[lineIndex++], sizeLineValueRanges);
 
-                var numRows = ReadInt32(sizeLine, sizeLineValueRanges[0]);
-                var numColumns = ReadInt32(sizeLine, sizeLineValueRanges[1]);
+                var numRows = FastReadInt32(sizeLine, sizeLineValueRanges[0]);
+                var numColumns = FastReadInt32(sizeLine, sizeLineValueRanges[1]);
                 
                 Cell[,] cells = new Cell[numRows, numColumns];
                 
@@ -41,7 +41,7 @@ namespace Runner
                     var dataLine = SplitLineIntoValueRanges(input, lineRanges[lineIndex++], dataLineValueRanges);
                     for (int j = 0; j < numColumns; j++)
                     {
-                        var v = ReadInt32(dataLine, dataLineValueRanges[j]);
+                        var v = FastReadInt32(dataLine, dataLineValueRanges[j]);
                         cells[k, j] =  new Cell(k, j, v);
                     }
                 }
@@ -52,16 +52,39 @@ namespace Runner
             return result;
         }
 
-        private static int ReadInt32(ReadOnlySpan<char> sizeLine, Range sizeLineValueRange)
+        
+        private static int FastReadInt32(ReadOnlySpan<char> sizeLine, Range sizeLineValueRange)
         {
-            return Int32.Parse(sizeLine.Slice(sizeLineValueRange.Start.Value, sizeLineValueRange.End.Value - sizeLineValueRange.Start.Value));
+            var span = sizeLine.Slice(sizeLineValueRange.Start.Value, sizeLineValueRange.End.Value - sizeLineValueRange.Start.Value);
+            int parsedValue = 0;
+            for (int i = 0; i < span.Length; i++)
+            {
+                var x = span[i] switch
+                {
+                    '0' => 0,
+                    '1' => 1,
+                    '2' => 2,
+                    '3' => 3,
+                    '4' => 4,
+                    '5' => 5,
+                    '6' => 6,
+                    '7' => 7,
+                    '8' => 8,
+                    '9' => 9,
+                    _ => throw new ArgumentOutOfRangeException($"Expected to get digit, but did not get one.")
+                };
+                
+                parsedValue = parsedValue * 10 + x;
+            }
+
+            return parsedValue;
         }
         
         private static ReadOnlySpan<char> SplitLineIntoValueRanges(
             ReadOnlySpan<char> input, Range lineRange, Span<Range> ranges)
         {
             var line = input.Slice(lineRange.Start.Value, lineRange.End.Value - lineRange.Start.Value);
-            line.Split(ranges, ' ');
+            line.Split(ranges, ' ', StringSplitOptions.TrimEntries);
             
             return line;
         }
