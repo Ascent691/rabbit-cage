@@ -59,22 +59,7 @@ namespace Runner
             int parsedValue = 0;
             for (int i = 0; i < span.Length; i++)
             {
-                var x = span[i] switch
-                {
-                    '0' => 0,
-                    '1' => 1,
-                    '2' => 2,
-                    '3' => 3,
-                    '4' => 4,
-                    '5' => 5,
-                    '6' => 6,
-                    '7' => 7,
-                    '8' => 8,
-                    '9' => 9,
-                    _ => throw new ArgumentOutOfRangeException($"Expected to get digit, but did not get one.")
-                };
-                
-                parsedValue = parsedValue * 10 + x;
+                parsedValue = parsedValue * 10 + (span[i] - '0');
             }
 
             return parsedValue;
