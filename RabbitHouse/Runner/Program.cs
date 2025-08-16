@@ -9,7 +9,9 @@ namespace Runner
         static void Main()
         {
             var stopwatch = Stopwatch.StartNew();
-            var arrangements = new RabbitHouseParser().Parse(File.ReadAllLines("1.in"));
+            var data = File.ReadAllText("1.in");
+            var fileReadTimeStamp = stopwatch.Elapsed;
+            var arrangements = new RabbitHouseParser().Parse(data);
             var parsingTimeStamp = stopwatch.Elapsed;
 
             var addedTotalForAllArrangements = new ConcurrentDictionary<int, RefCount>();
@@ -20,8 +22,7 @@ namespace Runner
                 addedTotalForAllArrangements[caseNumber] = addedTotalForArrangement;
                 var arrangement = arrangements[caseNumber];
                 
-                var cells = arrangement.MapInputCells((row, column, height) =>
-                    new Cell(row: row, column: column, height: height));
+                var cells = arrangement.Cells;
                 
                 var unsafeCellQueue = new PriorityQueue<Cell, int>();
                 foreach (var cell in cells)
@@ -59,6 +60,7 @@ namespace Runner
             
             stopwatch.Stop();
 
+            Console.WriteLine($"File Read Timestamp: {fileReadTimeStamp.ToString()}");
             Console.WriteLine($"Parsing Timestamp: {parsingTimeStamp.ToString()}");
             Console.WriteLine($"Total Timestamp: {stopwatch.Elapsed.ToString()}");
 

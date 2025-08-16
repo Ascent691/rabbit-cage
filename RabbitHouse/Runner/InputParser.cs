@@ -8,152 +8,69 @@ namespace Runner
 {
     public class RabbitHouseParser
     {
-        public RabbitHouseParser() { }
-
-        public RabbitHouseArrangement[] Parse(string[] lines)
+        public RabbitHouseArrangement[] Parse(ReadOnlySpan<char> input)
         {
+            var lines = 0;
+            for (var i = 0; i < input.Length; i++)
+            {
+                if (input[i] == '\n') lines++;
+            }
+
+            var lineRanges = new Range[lines];
+            input.Split(lineRanges, "\r\n");
+
             int lineIndex = 0;
-            var totalArrangements = Int32.Parse(lines[lineIndex++].Trim());
-            RabbitHouseArrangement[] result = new RabbitHouseArrangement[totalArrangements];
+            var arrangementLineRange = lineRanges[lineIndex++];
+            var totalArrangements = ReadInt32(input, arrangementLineRange);
+            var result = new RabbitHouseArrangement[totalArrangements];
+            
+            var sizeLineValueRanges = new Range[2];
+            
             for (int i = 0; i < totalArrangements; i++) {
+                var sizeLine = SplitLineIntoValueRanges(input, lineRanges[lineIndex++], sizeLineValueRanges);
 
+                var numRows = ReadInt32(sizeLine, sizeLineValueRanges[0]);
+                var numColumns = ReadInt32(sizeLine, sizeLineValueRanges[1]);
                 
-                string[] parts = lines[lineIndex++].Split(' ');
-                int numRows = Int32.Parse(parts[0]);
-                int numColumns = Int32.Parse(parts[1]);
-                int[,] cells = new int[numRows, numColumns];
-
+                Cell[,] cells = new Cell[numRows, numColumns];
+                
+                var dataLineValueRanges = new Range[numColumns];
+                
                 for (int k = 0; k < numRows; k++)
                 {
-                    parts = lines[lineIndex++].Split(' ');
+                    var dataLine = SplitLineIntoValueRanges(input, lineRanges[lineIndex++], dataLineValueRanges);
                     for (int j = 0; j < numColumns; j++)
                     {
-                        cells[k, j] = Int32.Parse(parts[j]);
+                        var v = ReadInt32(dataLine, dataLineValueRanges[j]);
+                        cells[k, j] =  new Cell(k, j, v);
                     }
                 }
 
                 result[i] = new RabbitHouseArrangement(cells, numRows, numColumns);
             }
-
+            
             return result;
+        }
+
+        private static int ReadInt32(ReadOnlySpan<char> sizeLine, Range sizeLineValueRange)
+        {
+            return Int32.Parse(sizeLine.Slice(sizeLineValueRange.Start.Value, sizeLineValueRange.End.Value - sizeLineValueRange.Start.Value));
+        }
+        
+        private static ReadOnlySpan<char> SplitLineIntoValueRanges(
+            ReadOnlySpan<char> input, Range lineRange, Span<Range> ranges)
+        {
+            var line = input.Slice(lineRange.Start.Value, lineRange.End.Value - lineRange.Start.Value);
+            line.Split(ranges, ' ');
+            
+            return line;
         }
     }
 
-    public class RabbitHouseArrangement
+    public class RabbitHouseArrangement(Cell[,] cells, int totalRows, int totalColumns)
     {
-
-        private readonly int[,] _immutableCells;
-        private readonly int[,] _cells;
-
-        public int TotalRows { get; }
-        public int TotalColumns { get; }
-
-        public int this[int row, int column] { get { return _cells[row,column]; } }
-
-
-
-        public RabbitHouseArrangement(int[,] cells, int totalRows, int totalColumns)
-        {
-            this._immutableCells = cells;
-            this._cells = new int[totalRows, totalColumns];
-            Array.Copy(cells, _cells, cells.Length);
-            TotalRows = totalRows;
-            TotalColumns = totalColumns;
-        }
-
-
-        public int GetHeightAt(int row, int column)
-        {
-            return _cells[row, column];
-        }
-
-        public void SetHeightAt(int row, int column, int value)
-        {
-            if (value < _immutableCells[row, column])
-                throw new ArgumentOutOfRangeException("value", value, $"Cannot make cell [${row},${column}] have a height of ${value}, as that would be lower than its original height of ${_immutableCells[row, column]}.");
-            _cells[row, column] = value;
-        }
-
-        public bool IsSafe()
-        {
-            for (int row = 0; row < TotalRows; row++)
-                for (int column = 0; column < TotalColumns; column++)
-                {
-                    int fromHeight = _cells[row, column];
-
-                    for (int dR = -1; dR <= 1; dR++)
-                    {
-                        if (row + dR < 0 || row + dR >= TotalRows) continue;
-                        for (int dC = -1; dC <= 1; dC++)
-                        {
-                            if (column + dC < 0 || column + dC >= TotalColumns) continue;
-                            if (Math.Abs(dC) + Math.Abs(dR) > 1) continue;
-                            int toHeight = _cells[row + dR, column + dC];
-                            if (Math.Abs(toHeight - fromHeight) > 1)
-                            {
-                                return false;
-                            }
-                        }
-                    }
-                }
-
-            return true;
-
-        }
-
-        public long GetTotalAddedBlocks()
-        {
-            long result = 0;
-
-            for (int row = 0; row < TotalRows; row++)
-                for (int column = 0; column < TotalColumns; column++)
-                    result += _cells[row, column] - _immutableCells[row, column];
-
-            return result;
-        }
-
-        public int GetHeighestCellHeight()
-        {
-            int value = 0;
-
-            for (int row = 0; row < TotalRows; row++)
-                for (int column = 0; column < TotalColumns; column++)
-                    if (value < _cells[row, column])
-                    {
-                        value = _cells[row, column];
-                    }
-
-            return value;
-        }
-
-        public void Visualise()
-        {
-            var longestHeightToOutput = GetHeighestCellHeight().ToString().Length;
-
-            for (int row = 0; row < TotalRows; row++)
-            {
-                var line = "";
-
-                for (int column = 0; column < TotalColumns; column++)
-                    line += _cells[row, column].ToString($"D{longestHeightToOutput}") + " ";
-                Console.WriteLine(line);
-            }
-
-            Console.WriteLine();
-        }
-
-        public T[,] MapInputCells<T>(Func<int, int, int, T> map)
-        {
-            var output = new T[TotalRows, TotalColumns];
-            for (int row = 0; row < TotalRows; row++)
-            {
-                for (int column = 0; column < TotalColumns; column++)
-                {
-                    output[row, column] = map(row, column, _immutableCells[row, column]);
-                }
-            }
-
-            return output;
-        }
+        public readonly Cell[,] Cells = cells;
+        public readonly int TotalRows = totalRows;
+        public readonly int TotalColumns = totalColumns;
     }
 }
