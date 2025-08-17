@@ -40,12 +40,10 @@ namespace Runner
                 }
             }
 
-            var consoleOutput = new StringBuilder(addedTotalForAllArrangements.Count);
             foreach (var indexedAddedTotal in addedTotalForAllArrangements)
             {
-                consoleOutput.AppendLine($"Case #{indexedAddedTotal.Key + 1}: {indexedAddedTotal.Value.Count}");
+                Console.WriteLine($"Case #{indexedAddedTotal.Key + 1}: {indexedAddedTotal.Value.Count}");
             }
-            Console.Write(consoleOutput);
             
             stopwatch.Stop();
 

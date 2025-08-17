@@ -25,9 +25,10 @@ public class Cell(int row, int column, int height)
 
         if (_north is not null)
         {
-            if (Height - _north.Height > 1)
+            var heightDifference = Height - _north.Height;
+            if (heightDifference > 1)
             {
-                var amountToAdd = Height - _north.Height - 1;
+                var amountToAdd = heightDifference - 1;
                 _north.Height += amountToAdd;
                 totalAdded += amountToAdd;
             }
@@ -40,9 +41,10 @@ public class Cell(int row, int column, int height)
         
         if (_east is not null)
         {
-            if (Height - _east.Height > 1)
+            var heightDifference = Height - _east.Height;
+            if (heightDifference > 1)
             {
-                var amountToAdd = Height - _east.Height - 1;
+                var amountToAdd = heightDifference - 1;
                 _east.Height += amountToAdd;
                 totalAdded += amountToAdd;
             }
@@ -55,9 +57,10 @@ public class Cell(int row, int column, int height)
         
         if (_south is not null)
         {
-            if (Height - _south.Height > 1)
+            var heightDifference = Height - _south.Height;
+            if (heightDifference > 1)
             {
-                var amountToAdd = Height - _south.Height - 1;
+                var amountToAdd = heightDifference - 1;
                 _south.Height += amountToAdd;
                 totalAdded += amountToAdd;
             }
@@ -70,9 +73,10 @@ public class Cell(int row, int column, int height)
         
         if (_west is not null)
         {
-            if (Height - _west.Height > 1)
+            var heightDifference = Height - _west.Height;
+            if (heightDifference > 1)
             {
-                var amountToAdd = Height - _west.Height - 1;
+                var amountToAdd = heightDifference - 1;
                 _west.Height += amountToAdd;
                 totalAdded += amountToAdd;
             }
