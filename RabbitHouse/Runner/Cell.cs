@@ -8,45 +8,79 @@ public class Cell(int row, int column, int height)
     private Cell? _west;
 
     public int Height = height;
-    
-    public bool IsSafe()
+    public Cell? Next;
+
+    private bool IsSafe()
     {
-        return (_north == null ||  Height - _north.Height <= 1) && 
+        return Height == 0 ||
+               (_north == null ||  Height - _north.Height <= 1) && 
                (_east == null || Height - _east.Height <= 1) &&  
                (_south == null || Height - _south.Height <= 1) && 
                (_west == null || Height - _west.Height <= 1);
     }
 
-    public int MakeSafe()
+    public int MakeSafe(CellQueue queue)
     {
         var totalAdded = 0;
 
-        if (_north is not null && Height - _north.Height > 1)
+        if (_north is not null)
         {
-            var amountToAdd = Height - _north.Height - 1;
-            _north.Height += amountToAdd;
-            totalAdded += amountToAdd;
+            if (Height - _north.Height > 1)
+            {
+                var amountToAdd = Height - _north.Height - 1;
+                _north.Height += amountToAdd;
+                totalAdded += amountToAdd;
+            }
+
+            if (_north.Next is null && _north.IsSafe() is false)
+            {
+                queue.Enqueue(_north);
+            }
         }
         
-        if (_east is not null && Height - _east.Height > 1)
+        if (_east is not null)
         {
-            var amountToAdd = Height - _east.Height - 1;
-            _east.Height += amountToAdd;
-            totalAdded += amountToAdd;
+            if (Height - _east.Height > 1)
+            {
+                var amountToAdd = Height - _east.Height - 1;
+                _east.Height += amountToAdd;
+                totalAdded += amountToAdd;
+            }
+
+            if (_east.Next is null && _east.IsSafe() is false)
+            {
+                queue.Enqueue(_east);
+            }
         }
         
-        if (_south is not null && Height - _south.Height > 1)
+        if (_south is not null)
         {
-            var amountToAdd = Height - _south.Height - 1;
-            _south.Height += amountToAdd;
-            totalAdded += amountToAdd;
+            if (Height - _south.Height > 1)
+            {
+                var amountToAdd = Height - _south.Height - 1;
+                _south.Height += amountToAdd;
+                totalAdded += amountToAdd;
+            }
+
+            if (_south.Next is null && _south.IsSafe() is false)
+            {
+                queue.Enqueue(_south);
+            }
         }
         
-        if (_west is not null && Height - _west.Height > 1)
+        if (_west is not null)
         {
-            var amountToAdd = Height - _west.Height - 1;
-            _west.Height += amountToAdd;
-            totalAdded += amountToAdd;
+            if (Height - _west.Height > 1)
+            {
+                var amountToAdd = Height - _west.Height - 1;
+                _west.Height += amountToAdd;
+                totalAdded += amountToAdd;
+            }
+
+            if (_west.Next is null && _west.IsSafe() is false)
+            {
+                queue.Enqueue(_west);
+            }
         }
         
         return totalAdded;

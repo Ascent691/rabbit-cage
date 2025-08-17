@@ -16,40 +16,29 @@ namespace Runner
 
             var addedTotalForAllArrangements = new ConcurrentDictionary<int, RefCount>();
 
-            Parallel.For(0, arrangements.Length, caseNumber =>
+            for (int caseNumber = 0; caseNumber < arrangements.Length; caseNumber++)
             {
                 var addedTotalForArrangement = new RefCount();
                 addedTotalForAllArrangements[caseNumber] = addedTotalForArrangement;
                 var arrangement = arrangements[caseNumber];
                 
                 var cells = arrangement.Cells;
-                
-                var unsafeCellQueue = new PriorityQueue<Cell, int>();
+                var queue = new CellQueue();
                 foreach (var cell in cells)
                 {
                     cell.ReferenceNeighbours(cells, arrangement.TotalRows, arrangement.TotalColumns);
-                    unsafeCellQueue.Enqueue(cell, 0 - cell.Height);
+                    queue.EnqueueNonZero(cell);
                 }
 
-                while (unsafeCellQueue.Count > 0)
+                while (queue.Head is not null)
                 {
-                    var queueSnapshot = unsafeCellQueue;
-                    unsafeCellQueue = new PriorityQueue<Cell, int>();
-
-                    while (queueSnapshot.TryDequeue(out var cell, out _))
+                    var cell = queue.Dequeue();
+                    if (cell is not null)
                     {
-                        addedTotalForArrangement.Count += cell.MakeSafe();
-                    }
-                    
-                    foreach (var cell in cells)
-                    {
-                        if (!cell.IsSafe())
-                        {
-                            unsafeCellQueue.Enqueue(cell, 0 - cell.Height);
-                        }
+                        addedTotalForArrangement.Count += cell.MakeSafe(queue);    
                     }
                 }
-            });
+            }
 
             var consoleOutput = new StringBuilder(addedTotalForAllArrangements.Count);
             foreach (var indexedAddedTotal in addedTotalForAllArrangements)
