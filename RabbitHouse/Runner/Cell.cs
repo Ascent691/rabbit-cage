@@ -25,12 +25,11 @@ public class Cell(int row, int column, int height)
 
         if (_north is not null)
         {
-            var heightDifference = Height - _north.Height;
-            if (heightDifference > 1)
+            var amountNeededToMakeSafe = Height - _north.Height - 1;
+            if (amountNeededToMakeSafe >= 1)
             {
-                var amountToAdd = heightDifference - 1;
-                _north.Height += amountToAdd;
-                totalAdded += amountToAdd;
+                _north.Height += amountNeededToMakeSafe;
+                totalAdded += amountNeededToMakeSafe;
             }
 
             if (_north.Next is null && _north.IsSafe() is false)
@@ -41,12 +40,11 @@ public class Cell(int row, int column, int height)
         
         if (_east is not null)
         {
-            var heightDifference = Height - _east.Height;
-            if (heightDifference > 1)
+            var amountNeededToMakeSafe = Height - _east.Height - 1;
+            if (amountNeededToMakeSafe >= 1)
             {
-                var amountToAdd = heightDifference - 1;
-                _east.Height += amountToAdd;
-                totalAdded += amountToAdd;
+                _east.Height += amountNeededToMakeSafe;
+                totalAdded += amountNeededToMakeSafe;
             }
 
             if (_east.Next is null && _east.IsSafe() is false)
@@ -57,12 +55,11 @@ public class Cell(int row, int column, int height)
         
         if (_south is not null)
         {
-            var heightDifference = Height - _south.Height;
-            if (heightDifference > 1)
+            var amountNeededToMakeSafe = Height - _south.Height - 1;
+            if (amountNeededToMakeSafe >= 1)
             {
-                var amountToAdd = heightDifference - 1;
-                _south.Height += amountToAdd;
-                totalAdded += amountToAdd;
+                _south.Height += amountNeededToMakeSafe;
+                totalAdded += amountNeededToMakeSafe;
             }
 
             if (_south.Next is null && _south.IsSafe() is false)
@@ -73,12 +70,11 @@ public class Cell(int row, int column, int height)
         
         if (_west is not null)
         {
-            var heightDifference = Height - _west.Height;
-            if (heightDifference > 1)
+            var amountNeededToMakeSafe = Height - _west.Height - 1;
+            if (amountNeededToMakeSafe >= 1)
             {
-                var amountToAdd = heightDifference - 1;
-                _west.Height += amountToAdd;
-                totalAdded += amountToAdd;
+                _west.Height += amountNeededToMakeSafe;
+                totalAdded += amountNeededToMakeSafe;
             }
 
             if (_west.Next is null && _west.IsSafe() is false)
