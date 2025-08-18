@@ -17,13 +17,13 @@ namespace Runner
             var answers = await CalculateAnswers(arrangements, output);
 
             solutionStopWatch.Stop();
-            output.WriteLine($"Solution Time (Including Console Output) : {solutionStopWatch.Elapsed.ToString()}");
+            await output.WriteLineAsync($"Solution Time (Including Console Output) : {solutionStopWatch.Elapsed.ToString()}");
 
             var answerVerificationStopWatch = VerifyAnswers(answers, output);
-            output.WriteLine($"Answer Verification Time                 : {answerVerificationStopWatch.Elapsed.ToString()}");
+            await output.WriteLineAsync($"Answer Verification Time                 : {answerVerificationStopWatch.Elapsed.ToString()}");
             
             var totalTime = answerVerificationStopWatch.Elapsed + solutionStopWatch.Elapsed;
-            output.WriteLine($"Total Time                               : {totalTime.ToString()}");
+            await output.WriteLineAsync($"Total Time                               : {totalTime.ToString()}");
         }
 
         private static Task<Answer[]> CalculateAnswers(RabbitHouseArrangements arrangements, StreamWriter output)

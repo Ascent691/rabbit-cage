@@ -10,14 +10,11 @@ public class Cell(int row, int column, int height)
     public int Height = height;
     public Cell? Next;
 
-    private bool IsSafe()
-    {
-        return Height == 0 ||
-               (_north == null ||  Height - _north.Height <= 1) && 
-               (_east == null || Height - _east.Height <= 1) &&  
-               (_south == null || Height - _south.Height <= 1) && 
-               (_west == null || Height - _west.Height <= 1);
-    }
+    private bool IsSafe() => Height == 0 ||
+                             (_north == null ||  Height - _north.Height <= 1) && 
+                             (_east == null || Height - _east.Height <= 1) &&  
+                             (_south == null || Height - _south.Height <= 1) && 
+                             (_west == null || Height - _west.Height <= 1);
 
     public int MakeSafe(CellQueue queue)
     {
