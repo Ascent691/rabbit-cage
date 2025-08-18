@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Text;
 
 namespace Runner
 {
@@ -9,46 +8,51 @@ namespace Runner
         static void Main()
         {
             var stopwatch = Stopwatch.StartNew();
-            var data = File.ReadAllText("1.in");
-            var fileReadTimeStamp = stopwatch.Elapsed;
-            var arrangements = new RabbitHouseParser().Parse(data);
-            var parsingTimeStamp = stopwatch.Elapsed;
-
+            var arrangements = new RabbitHouseParser().Parse("1.in");
             var addedTotalForAllArrangements = new ConcurrentDictionary<int, RefCount>();
 
-            for (int caseNumber = 0; caseNumber < arrangements.Length; caseNumber++)
+            var t = Task.Run(() =>
             {
-                var addedTotalForArrangement = new RefCount();
-                addedTotalForAllArrangements[caseNumber] = addedTotalForArrangement;
-                var arrangement = arrangements[caseNumber];
+                arrangements.AmountDataReadSemaphore.Wait();
                 
-                var cells = arrangement.Cells;
-                var queue = new CellQueue();
-                foreach (var cell in cells)
+                if(arrangements.Data == null) throw new Exception("Oh noes you flew to close to the sun!!!");
+                
+                for (int caseNumber = 0; caseNumber < arrangements.Data.Length; caseNumber++)
                 {
-                    cell.ReferenceNeighbours(cells, arrangement.TotalRows, arrangement.TotalColumns);
-                    queue.EnqueueNonZero(cell);
-                }
-
-                while (queue.Head is not null)
-                {
-                    var cell = queue.Dequeue();
-                    if (cell is not null)
+                    arrangements.DataAvailableSemaphore.Wait();
+                    
+                    var addedTotalForArrangement = new RefCount();
+                    addedTotalForAllArrangements[caseNumber] = addedTotalForArrangement;
+                    var arrangement = arrangements.Data[caseNumber];
+                
+                    var cells = arrangement.Cells;
+                    var queue = new CellQueue();
+                    foreach (var cell in cells)
                     {
-                        addedTotalForArrangement.Count += cell.MakeSafe(queue);    
+                        cell.ReferenceNeighbours(cells, arrangement.TotalRows, arrangement.TotalColumns);
+                        queue.EnqueueNonZero(cell);
+                    }
+
+                    while (queue.Head is not null)
+                    {
+                        var cell = queue.Dequeue();
+                        if (cell is not null)
+                        {
+                            addedTotalForArrangement.Count += cell.MakeSafe(queue);    
+                        }
                     }
                 }
-            }
 
-            foreach (var indexedAddedTotal in addedTotalForAllArrangements)
-            {
-                Console.WriteLine($"Case #{indexedAddedTotal.Key + 1}: {indexedAddedTotal.Value.Count}");
-            }
+                foreach (var indexedAddedTotal in addedTotalForAllArrangements)
+                {
+                    Console.WriteLine($"Case #{indexedAddedTotal.Key + 1}: {indexedAddedTotal.Value.Count}");
+                }
+            });
+
+            t.Wait();
             
             stopwatch.Stop();
 
-            Console.WriteLine($"File Read Timestamp: {fileReadTimeStamp.ToString()}");
-            Console.WriteLine($"Parsing Timestamp: {parsingTimeStamp.ToString()}");
             Console.WriteLine($"Total Timestamp: {stopwatch.Elapsed.ToString()}");
 
             var actualAnswers = File.ReadAllLines("1.ans");
