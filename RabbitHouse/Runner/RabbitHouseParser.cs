@@ -69,7 +69,7 @@ namespace Runner
             var span = sizeLine.Slice(sizeLineValueRange.Start.Value, sizeLineValueRange.End.Value - sizeLineValueRange.Start.Value);
             int parsedValue = 0;
             
-            for (int i = 0; i < span.Length; i++)
+            for (var i = 0; i < span.Length; i++)
             {
                 parsedValue = parsedValue * 10 + (span[i] - '0');
             }

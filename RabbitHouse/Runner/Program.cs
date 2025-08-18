@@ -46,8 +46,11 @@ namespace Runner
 
                     var cells = arrangement.Cells;
                     var queue = new CellQueue();
-                    foreach (var cell in cells)
+                    
+                    for (var cellRow = 0; cellRow < cells.GetLength(0); cellRow++)
+                    for (var cellColumn = 0; cellColumn < cells.GetLength(1); cellColumn++)
                     {
+                        var cell = cells[cellRow, cellColumn];
                         cell.ReferenceNeighbours(cells, arrangement.TotalRows, arrangement.TotalColumns);
                         queue.EnqueueNonZero(cell);
                     }
