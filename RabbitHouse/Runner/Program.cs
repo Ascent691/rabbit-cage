@@ -9,23 +9,24 @@ namespace Runner
         {
             var solutionStopWatch = Stopwatch.StartNew();
             var arrangements = new RabbitHouseParser().Parse("1.in");
-            var addedTotalForAllArrangements = new ConcurrentDictionary<int, RefCount>();
 
             using var o = new StreamWriter(Console.OpenStandardOutput());
 
-            var t = Task.Run(() =>
+            var answersTask = Task.Run(() =>
             {
                 arrangements.AmountDataReadSemaphore.Wait();
                 
                 if(arrangements.Data == null) throw new Exception("Oh noes you flew to close to the sun!!!");
+
+                var addedTotalsForAllArrangements = new RefCount[arrangements.Data.Length];
                 
-                for (int caseNumber = 0; caseNumber < arrangements.Data.Length; caseNumber++)
+                for (int i = 0; i < arrangements.Data.Length; i++)
                 {
                     arrangements.DataAvailableSemaphore.Wait();
                     
                     var addedTotalForArrangement = new RefCount();
-                    addedTotalForAllArrangements[caseNumber] = addedTotalForArrangement;
-                    var arrangement = arrangements.Data[caseNumber];
+                    addedTotalsForAllArrangements[i] = addedTotalForArrangement;
+                    var arrangement = arrangements.Data[i];
                 
                     var cells = arrangement.Cells;
                     var queue = new CellQueue();
@@ -45,22 +46,23 @@ namespace Runner
                     }
                 }
 
-                foreach (var indexedAddedTotal in addedTotalForAllArrangements)
-                {
-                    o.WriteLine($"Case #{indexedAddedTotal.Key + 1}: {indexedAddedTotal.Value.Count}");
-                }
+                return addedTotalsForAllArrangements;
             });
 
-            t.Wait();
+            var addedTotalsForAllArrangements = answersTask.Result;
+            for (int i = 0; i < addedTotalsForAllArrangements.Length; i++)
+            {
+                o.WriteLine($"Case #{i + 1}: {addedTotalsForAllArrangements[i].Count}");
+            }
             
             solutionStopWatch.Stop();
             o.WriteLine($"Solution Time (Including Console Output) : {solutionStopWatch.Elapsed.ToString()}");
 
             var answerVerificationStopWatch = Stopwatch.StartNew();
             var actualAnswers = File.ReadAllLines("1.ans");
-            for (int i = 0; i < addedTotalForAllArrangements.Count; i++)
+            for (int i = 0; i < addedTotalsForAllArrangements.Length; i++)
             {
-                var calculatedAnswer = $"Case #{i + 1}: {addedTotalForAllArrangements[i].Count}";
+                var calculatedAnswer = $"Case #{i + 1}: {addedTotalsForAllArrangements[i].Count}";
                 if (calculatedAnswer != actualAnswers[i])
                 {
                     o.WriteLine($"Difference detected, calculated: '{calculatedAnswer}', answer: '{actualAnswers[i]}'");
