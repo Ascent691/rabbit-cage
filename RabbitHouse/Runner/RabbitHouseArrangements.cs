@@ -1,9 +1,16 @@
 ﻿namespace Runner;
 
-public class RabbitHouseArrangements(SemaphoreSlim amountDataReadSemaphore, SemaphoreSlim dataAvailableSemaphore)
+public class RabbitHouseArrangements(SemaphoreSlim amountOfCasesRead, SemaphoreSlim caseDataRead)
 {
     public RabbitHouseArrangement[]? Data;
-        
-    public readonly SemaphoreSlim AmountDataReadSemaphore = amountDataReadSemaphore;
-    public readonly SemaphoreSlim DataAvailableSemaphore = dataAvailableSemaphore;
+
+    public void WaitForAmountOfCasesToBeRead()
+    {
+        amountOfCasesRead.Wait();
+    }
+
+    public void WaitCaseDataToBeRead()
+    {
+        caseDataRead.Wait();
+    }
 }

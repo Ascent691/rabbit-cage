@@ -10,7 +10,9 @@ namespace Runner
     {
         public RabbitHouseArrangements Parse(string path)
         {
-            var rabbitHouseArrangements = new RabbitHouseArrangements(new SemaphoreSlim(0, 1), new SemaphoreSlim(0));
+            var amountOfCasesRead = new SemaphoreSlim(0, 1);
+            var caseDataRead = new SemaphoreSlim(0);
+            var rabbitHouseArrangements = new RabbitHouseArrangements(amountOfCasesRead, caseDataRead);
 
             Task.Run(() =>
             {
@@ -30,7 +32,7 @@ namespace Runner
                 var totalArrangements = FastReadInt32(input, arrangementLineRange);
             
                 rabbitHouseArrangements.Data = new RabbitHouseArrangement[totalArrangements];
-                rabbitHouseArrangements.AmountDataReadSemaphore.Release(1);
+                amountOfCasesRead.Release(1);
             
                 var sizeLineValueRanges = new Range[2];
             
@@ -55,7 +57,7 @@ namespace Runner
                     }
 
                     rabbitHouseArrangements.Data[i] = new RabbitHouseArrangement(cells, numRows, numColumns);
-                    rabbitHouseArrangements.DataAvailableSemaphore.Release(1);
+                    caseDataRead.Release(1);
                 }
             });
 

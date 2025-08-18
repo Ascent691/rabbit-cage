@@ -1,9 +1,8 @@
-﻿using System.Collections.Concurrent;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace Runner
 {
-    internal class Program
+    internal static class Program
     {
         private static readonly string InputPath = "1.in";
         private static readonly string AnswerPath = "1.ans";
@@ -31,15 +30,15 @@ namespace Runner
         {
             return Task.Run(() =>
             {
-                arrangements.AmountDataReadSemaphore.Wait();
+                arrangements.WaitForAmountOfCasesToBeRead();
                 
                 if(arrangements.Data == null) throw new Exception("Oh noes you flew to close to the sun!!!");
 
                 var answers = new Answer[arrangements.Data.Length];
                 
-                for (int i = 0; i < arrangements.Data.Length; i++)
+                for (var i = 0; i < arrangements.Data.Length; i++)
                 {
-                    arrangements.DataAvailableSemaphore.Wait();
+                    arrangements.WaitCaseDataToBeRead();
                     var arrangement = arrangements.Data[i];
 
                     var answer = new Answer(i);
@@ -69,16 +68,16 @@ namespace Runner
             });
         }
 
-        private static Stopwatch VerifyAnswers(Answer[] answers, StreamWriter o)
+        private static Stopwatch VerifyAnswers(Answer[] calculatedAnswers, StreamWriter o)
         {
             var answerVerificationStopWatch = Stopwatch.StartNew();
             
             var actualAnswers = File.ReadAllLines(AnswerPath);
-            for (int i = 0; i < answers.Length; i++)
+            for (var i = 0; i < calculatedAnswers.Length; i++)
             {
-                if (answers[i].ToString() != actualAnswers[i])
+                if (calculatedAnswers[i].ToString() != actualAnswers[i])
                 {
-                    o.WriteLine($"Difference detected, calculated: '{answers[i]}', answer: '{actualAnswers[i]}'");
+                    o.WriteLine($"Difference detected, calculated: '{calculatedAnswers[i]}', answer: '{actualAnswers[i]}'");
                 }
             }
             answerVerificationStopWatch.Stop();
