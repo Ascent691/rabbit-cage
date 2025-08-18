@@ -87,6 +87,7 @@ namespace Runner
                         for (int dC = -1; dC <= 1; dC++)
                         {
                             if (column + dC < 0 || column + dC >= TotalColumns) continue;
+                            if (Math.Abs(dC) + Math.Abs(dR) > 1) continue;
                             int toHeight = _cells[row + dR, column + dC];
                             if (Math.Abs(toHeight - fromHeight) > 1)
                             {
