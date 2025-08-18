@@ -7,9 +7,11 @@ namespace Runner
     {
         static void Main()
         {
-            var stopwatch = Stopwatch.StartNew();
+            var solutionStopWatch = Stopwatch.StartNew();
             var arrangements = new RabbitHouseParser().Parse("1.in");
             var addedTotalForAllArrangements = new ConcurrentDictionary<int, RefCount>();
+
+            using var o = new StreamWriter(Console.OpenStandardOutput());
 
             var t = Task.Run(() =>
             {
@@ -45,25 +47,29 @@ namespace Runner
 
                 foreach (var indexedAddedTotal in addedTotalForAllArrangements)
                 {
-                    Console.WriteLine($"Case #{indexedAddedTotal.Key + 1}: {indexedAddedTotal.Value.Count}");
+                    o.WriteLine($"Case #{indexedAddedTotal.Key + 1}: {indexedAddedTotal.Value.Count}");
                 }
             });
 
             t.Wait();
             
-            stopwatch.Stop();
+            solutionStopWatch.Stop();
+            o.WriteLine($"Solution Time (Including Console Output) : {solutionStopWatch.Elapsed.ToString()}");
 
-            Console.WriteLine($"Total Timestamp: {stopwatch.Elapsed.ToString()}");
-
+            var answerVerificationStopWatch = Stopwatch.StartNew();
             var actualAnswers = File.ReadAllLines("1.ans");
             for (int i = 0; i < addedTotalForAllArrangements.Count; i++)
             {
                 var calculatedAnswer = $"Case #{i + 1}: {addedTotalForAllArrangements[i].Count}";
                 if (calculatedAnswer != actualAnswers[i])
                 {
-                    Console.WriteLine($"Difference detected, calculated: '{calculatedAnswer}', answer: '{actualAnswers[i]}'");
+                    o.WriteLine($"Difference detected, calculated: '{calculatedAnswer}', answer: '{actualAnswers[i]}'");
                 }
             }
+            answerVerificationStopWatch.Stop();
+            o.WriteLine($"Answer Verification Time                 : {answerVerificationStopWatch.Elapsed.ToString()}");
+            var totalTime = answerVerificationStopWatch.Elapsed + solutionStopWatch.Elapsed;
+            o.WriteLine($"Total Time                               : {totalTime.ToString()}");
         }
     }
 }
