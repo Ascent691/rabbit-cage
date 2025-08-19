@@ -30,7 +30,7 @@ namespace Runner
         {
             return Task.Run(() =>
             {
-                arrangements.WaitForAmountOfCasesToBeRead();
+                arrangements.WaitForTotalNumberOfArrangementsToBeRead();
                 
                 if(arrangements.Data == null) throw new Exception("Oh noes you flew to close to the sun!!!");
 
@@ -38,7 +38,7 @@ namespace Runner
                 
                 for (var i = 0; i < arrangements.Data.Length; i++)
                 {
-                    arrangements.WaitCaseDataToBeRead();
+                    arrangements.WaitArrangementDataToBeRead();
                     var arrangement = arrangements.Data[i];
 
                     var answer = new Answer(i);

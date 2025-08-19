@@ -8,82 +8,82 @@ namespace Runner
 {
     public class RabbitHouseParser
     {
+        private static readonly byte CarriageReturn = 13;
+        private static readonly byte NewLine = 10;
+        private static readonly byte Space = 32;
+
         public RabbitHouseArrangements Parse(string path)
         {
-            var amountOfCasesRead = new SemaphoreSlim(0, 1);
-            var caseDataRead = new SemaphoreSlim(0);
-            var rabbitHouseArrangements = new RabbitHouseArrangements(amountOfCasesRead, caseDataRead);
+            var amountOfArrangementsRead = new SemaphoreSlim(0, 1);
+            var arrangementDataRead = new SemaphoreSlim(0);
+            var rabbitHouseArrangements = new RabbitHouseArrangements(amountOfArrangementsRead, arrangementDataRead);
 
             Task.Run(() =>
             {
-                ReadOnlySpan<char> input = File.ReadAllText(path);
+                ReadOnlySpan<byte> data = File.ReadAllBytes(path);
                 
-                var lines = 0;
-                for (var i = 0; i < input.Length; i++)
-                {
-                    if (input[i] == '\n') lines++;
-                }
+                int position = 0;
 
-                var lineRanges = new Range[lines];
-                input.Split(lineRanges, "\r\n", StringSplitOptions.TrimEntries);
-
-                int lineIndex = 0;
-                var arrangementLineRange = lineRanges[lineIndex++];
-                var totalArrangements = FastReadInt32(input, arrangementLineRange);
-            
+                var totalArrangementsLineValues = new int[1];
+                CopyNumbersOnLineTo(data, ref position, totalArrangementsLineValues);
+                var totalArrangements = totalArrangementsLineValues[0];
+                
                 rabbitHouseArrangements.Data = new RabbitHouseArrangement[totalArrangements];
-                amountOfCasesRead.Release(1);
-            
-                var sizeLineValueRanges = new Range[2];
-            
-                for (int i = 0; i < totalArrangements; i++) {
-                    var sizeLine = SplitLineIntoValueRanges(input, lineRanges[lineIndex++], sizeLineValueRanges);
-
-                    var numRows = FastReadInt32(sizeLine, sizeLineValueRanges[0]);
-                    var numColumns = FastReadInt32(sizeLine, sizeLineValueRanges[1]);
+                amountOfArrangementsRead.Release(1);
                 
+                var sizeLineValues = new int[2];
+                
+                for (int i = 0; i < totalArrangements; i++)
+                {
+                    CopyNumbersOnLineTo(data, ref position, sizeLineValues);
+                    
+                    var numRows = sizeLineValues[0];
+                    var numColumns = sizeLineValues[1];
+                    
                     Cell[,] cells = new Cell[numRows, numColumns];
-                
-                    var dataLineValueRanges = new Range[numColumns];
-                
-                    for (int k = 0; k < numRows; k++)
+                    
+                    var dataLineValues = new int[numColumns];
+
+                    for (int row = 0; row < numRows; row++)
                     {
-                        var dataLine = SplitLineIntoValueRanges(input, lineRanges[lineIndex++], dataLineValueRanges);
-                        for (int j = 0; j < numColumns; j++)
+                        CopyNumbersOnLineTo(data, ref position, dataLineValues);
+                        for (int column = 0; column < numColumns; column++)
                         {
-                            var v = FastReadInt32(dataLine, dataLineValueRanges[j]);
-                            cells[k, j] =  new Cell(k, j, v);
+                            cells[row, column] =  new Cell(row, column, dataLineValues[column]);
                         }
                     }
-
+                    
                     rabbitHouseArrangements.Data[i] = new RabbitHouseArrangement(cells, numRows, numColumns);
-                    caseDataRead.Release(1);
+                    arrangementDataRead.Release(1);
                 }
             });
 
             return rabbitHouseArrangements;
         }
         
-        private static int FastReadInt32(ReadOnlySpan<char> sizeLine, Range sizeLineValueRange)
+        private static void CopyNumbersOnLineTo(ReadOnlySpan<byte> span, ref int position, int[] destination)
         {
-            var span = sizeLine.Slice(sizeLineValueRange.Start.Value, sizeLineValueRange.End.Value - sizeLineValueRange.Start.Value);
-            int parsedValue = 0;
-            
-            for (var i = 0; i < span.Length; i++)
+            for (var i = 0; i < destination.Length; i++)
             {
-                parsedValue = parsedValue * 10 + (span[i] - '0');
+                int parsedValue = 0;
+                while (span[position] != Space && span[position] != CarriageReturn  && span[position] != NewLine)
+                {
+                    var digit = span[position] - 48;
+                    parsedValue = parsedValue * 10 + digit;
+                    position++;
+                }
+                destination[i] = parsedValue;
+                
+                while (span[position] == Space)
+                {
+                    position++;
+                }
             }
-
-            return parsedValue;
-        }
-        
-        private static ReadOnlySpan<char> SplitLineIntoValueRanges(
-            ReadOnlySpan<char> input, Range lineRange, Span<Range> ranges)
-        {
-            var line = input.Slice(lineRange.Start.Value, lineRange.End.Value - lineRange.Start.Value);
-            line.Split(ranges, ' ', StringSplitOptions.TrimEntries);
             
-            return line;
+            while (position < span.Length && (span[position] == CarriageReturn || span[position] == NewLine))
+            {
+                position++;
+            }
         }
     }
 }
