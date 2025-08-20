@@ -12,7 +12,7 @@ public class CellQueue
             return;
         }
         
-        if (cell.Next is not null) throw new InvalidOperationException("Cell already in a chain");
+        if (cell.Next is not null) throw new InvalidOperationException("Cell already in a queue");
 
         if (Head is null && _tail is null)
         {
@@ -21,7 +21,7 @@ public class CellQueue
             return;
         }
         
-        if (Head is null || _tail is null) throw new InvalidOperationException("Chain in invalid state");
+        if (Head is null || _tail is null) throw new InvalidOperationException("Queue in invalid state");
         
         if (Head == _tail)
         {

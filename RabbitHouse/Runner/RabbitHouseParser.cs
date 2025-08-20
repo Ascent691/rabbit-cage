@@ -27,13 +27,13 @@
                 
                 var sizeLineValues = new int[2];
                 
-                for (int i = 0; i < totalArrangements; i++)
+                for (int arrangementNumber = 0; arrangementNumber < totalArrangements; arrangementNumber++)
                 {
                     CopyNumbersOnLineTo(data, ref offset, sizeLineValues);
                     
                     var numRows = sizeLineValues[0];
                     var numColumns = sizeLineValues[1];
-                    
+
                     Cell[,] cells = new Cell[numRows, numColumns];
                     var queue = new CellQueue();
                     
@@ -44,16 +44,18 @@
                         CopyNumbersOnLineTo(data, ref offset, dataLineValues);
                         for (int column = 0; column < numColumns; column++)
                         {
-                            var cell = new Cell(row, column, dataLineValues[column], cells);
+                            var height = dataLineValues[column];
+                            var cell = new Cell(row, column, height, cells);
                             cells[row, column] =  cell;
-                            if (cell.Height > 1)
+
+                            if (height > 1)
                             {
                                 queue.Enqueue(cell);    
                             }
                         }
                     }
                     
-                    rabbitHouseArrangements.Data[i] = new RabbitHouseArrangement(queue);
+                    rabbitHouseArrangements.Data[arrangementNumber] = new RabbitHouseArrangement(queue);
                     arrangementDataRead.Release(1);
                 }
             });

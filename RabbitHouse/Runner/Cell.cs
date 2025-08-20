@@ -12,7 +12,7 @@ public class Cell(
     private Cell? _west;
     private bool _neighboursHaveBeenReferenced;
 
-    public int Height = height;
+    private int _height = height;
     public Cell? Next;
 
     private bool IsSafe()
@@ -21,12 +21,17 @@ public class Cell(
         {
             ReferenceNeighbours();
         }
-        
-        return Height == 0 ||
-               (_north == null || Height - _north.Height <= 1) &&
-               (_east == null || Height - _east.Height <= 1) &&
-               (_south == null || Height - _south.Height <= 1) &&
-               (_west == null || Height - _west.Height <= 1);
+
+        return _height <= 1 ||
+               IsNeighbourSafeToJumpTo(_north) &&
+               IsNeighbourSafeToJumpTo(_east) &&
+               IsNeighbourSafeToJumpTo(_south) &&
+               IsNeighbourSafeToJumpTo(_west);
+    }
+
+    private bool IsNeighbourSafeToJumpTo(Cell? neighbour)
+    {
+        return neighbour == null || _height - neighbour._height <= 1;
     }
 
     public int MakeSafe(CellQueue queue)
@@ -35,69 +40,32 @@ public class Cell(
         {
             ReferenceNeighbours();
         }
-        
+
+        return MakeNeighbourSafeToJumpTo(queue, _north) +
+               MakeNeighbourSafeToJumpTo(queue, _east) +
+               MakeNeighbourSafeToJumpTo(queue, _south) +
+               MakeNeighbourSafeToJumpTo(queue, _west);
+    }
+
+    private int MakeNeighbourSafeToJumpTo(CellQueue queue, Cell? neighbour)
+    {
         var totalAdded = 0;
-        
-        if (_north is not null)
+
+        if (neighbour is not null)
         {
-            var additionalHeightNeededToMakeCellSafe = Height - _north.Height - 1;
+            var additionalHeightNeededToMakeCellSafe = _height - neighbour._height - 1;
             if (additionalHeightNeededToMakeCellSafe >= 1)
             {
-                _north.Height += additionalHeightNeededToMakeCellSafe;
+                neighbour._height += additionalHeightNeededToMakeCellSafe;
                 totalAdded += additionalHeightNeededToMakeCellSafe;
             }
 
-            if (_north.Next is null && _north.IsSafe() is false)
+            if (neighbour.Next is null && neighbour.IsSafe() is false)
             {
-                queue.Enqueue(_north);
+                queue.Enqueue(neighbour);
             }
         }
-        
-        if (_east is not null)
-        {
-            var additionalHeightNeededToMakeCellSafe = Height - _east.Height - 1;
-            if (additionalHeightNeededToMakeCellSafe >= 1)
-            {
-                _east.Height += additionalHeightNeededToMakeCellSafe;
-                totalAdded += additionalHeightNeededToMakeCellSafe;
-            }
 
-            if (_east.Next is null && _east.IsSafe() is false)
-            {
-                queue.Enqueue(_east);
-            }
-        }
-        
-        if (_south is not null)
-        {
-            var additionalHeightNeededToMakeCellSafe = Height - _south.Height - 1;
-            if (additionalHeightNeededToMakeCellSafe >= 1)
-            {
-                _south.Height += additionalHeightNeededToMakeCellSafe;
-                totalAdded += additionalHeightNeededToMakeCellSafe;
-            }
-
-            if (_south.Next is null && _south.IsSafe() is false)
-            {
-                queue.Enqueue(_south);
-            }
-        }
-        
-        if (_west is not null)
-        {
-            var additionalHeightNeededToMakeCellSafe = Height - _west.Height - 1;
-            if (additionalHeightNeededToMakeCellSafe >= 1)
-            {
-                _west.Height += additionalHeightNeededToMakeCellSafe;
-                totalAdded += additionalHeightNeededToMakeCellSafe;
-            }
-
-            if (_west.Next is null && _west.IsSafe() is false)
-            {
-                queue.Enqueue(_west);
-            }
-        }
-        
         return totalAdded;
     }
 
@@ -107,12 +75,12 @@ public class Cell(
 
         var totalRows = cells.GetLength(0);
         var totalColumns = cells.GetLength(1);
-        
+
         if (row > 0 && row <= totalRows - 1)
         {
             _north = cells[row - 1, column];
         }
-        
+
         if (row < totalRows - 1)
         {
             _south = cells[row + 1, column];
