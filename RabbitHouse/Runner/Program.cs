@@ -39,7 +39,7 @@ internal static class Program
             if(arrangements.Data == null) throw new Exception("Oh noes you flew to close to the sun!!!");
 
             var answers = new Answer[arrangements.Data.Length];
-                
+            
             for (var i = 0; i < arrangements.Data.Length; i++)
             {
                 arrangements.WaitArrangementDataToBeRead();

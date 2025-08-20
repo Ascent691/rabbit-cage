@@ -17,7 +17,7 @@ public class Cell(
 
     private bool IsSafe()
     {
-        if (_neighboursHaveBeenReferenced is false)
+        if (!_neighboursHaveBeenReferenced)
         {
             ReferenceNeighbours();
         }
@@ -36,7 +36,7 @@ public class Cell(
 
     public int MakeSafe(CellQueue queue)
     {
-        if (_neighboursHaveBeenReferenced is false)
+        if (!_neighboursHaveBeenReferenced)
         {
             ReferenceNeighbours();
         }
@@ -49,24 +49,23 @@ public class Cell(
 
     private int MakeNeighbourSafeToJumpTo(CellQueue queue, Cell? neighbour)
     {
-        var totalAdded = 0;
-
-        if (neighbour is not null)
+        if (neighbour is null) return 0;
+        
+        var amountAddedToNeighbour = 0;
+        
+        var additionalHeightNeededToMakeNeighbourSafeToJumpTo = _height - neighbour._height - 1;
+        if (additionalHeightNeededToMakeNeighbourSafeToJumpTo >= 1)
         {
-            var additionalHeightNeededToMakeCellSafe = _height - neighbour._height - 1;
-            if (additionalHeightNeededToMakeCellSafe >= 1)
-            {
-                neighbour._height += additionalHeightNeededToMakeCellSafe;
-                totalAdded += additionalHeightNeededToMakeCellSafe;
-            }
-
-            if (neighbour.Next is null && neighbour.IsSafe() is false)
-            {
-                queue.Enqueue(neighbour);
-            }
+            neighbour._height += additionalHeightNeededToMakeNeighbourSafeToJumpTo;
+            amountAddedToNeighbour = additionalHeightNeededToMakeNeighbourSafeToJumpTo;
         }
 
-        return totalAdded;
+        if (neighbour.Next is null && !neighbour.IsSafe())
+        {
+            queue.Enqueue(neighbour);
+        }
+
+        return amountAddedToNeighbour;
     }
 
     private void ReferenceNeighbours()
