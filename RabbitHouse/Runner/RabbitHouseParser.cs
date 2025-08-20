@@ -43,7 +43,7 @@
                         CopyNumbersOnLineTo(data, ref position, dataLineValues);
                         for (int column = 0; column < numColumns; column++)
                         {
-                            cells[row, column] =  new Cell(row, column, dataLineValues[column]);
+                            cells[row, column] =  new Cell(row, column, dataLineValues[column], cells);
                         }
                     }
                     

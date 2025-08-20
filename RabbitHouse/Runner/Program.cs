@@ -59,7 +59,6 @@ internal static class Program
                 for (var cellColumn = 0; cellColumn < cells.GetLength(1); cellColumn++)
                 {
                     var cell = cells[cellRow, cellColumn];
-                    cell.ReferenceNeighbours(cells, arrangement.TotalRows, arrangement.TotalColumns);
                     queue.EnqueueNonZero(cell);
                 }
 
