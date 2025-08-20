@@ -1,9 +1,5 @@
 ﻿using System.Diagnostics;
 
-// TODO get rid of need for an additional loop to reference neighbors by giving the cell a reference to all cells
-//      and the dimensions of the grid.
-// TODO move the creation and population of the queue into the parser, which should put it onto RabbitHouseArrangement,
-//      the Cells property can then be removed.
 // TODO draw algorithm diagram.
 // TODO try to make code more readable, and where that is not possible document performance choices
 //      and give "should consider using in production" rating.
@@ -52,22 +48,12 @@ internal static class Program
                 var answer = new Answer(i);
                 answers[i] = answer;
 
-                var cells = arrangement.Cells;
-                var queue = new CellQueue();
-                    
-                for (var cellRow = 0; cellRow < cells.GetLength(0); cellRow++)
-                for (var cellColumn = 0; cellColumn < cells.GetLength(1); cellColumn++)
+                while (arrangement.Queue.Head is not null)
                 {
-                    var cell = cells[cellRow, cellColumn];
-                    queue.EnqueueNonZero(cell);
-                }
-
-                while (queue.Head is not null)
-                {
-                    var cell = queue.Dequeue();
+                    var cell = arrangement.Queue.Dequeue();
                     if (cell is not null)
                     {
-                        answer.Count += cell.MakeSafe(queue);    
+                        answer.Count += cell.MakeSafe(arrangement.Queue);    
                     }
                 }
                     

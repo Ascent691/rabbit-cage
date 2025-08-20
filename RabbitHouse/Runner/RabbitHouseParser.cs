@@ -35,6 +35,7 @@
                     var numColumns = sizeLineValues[1];
                     
                     Cell[,] cells = new Cell[numRows, numColumns];
+                    var queue = new CellQueue();
                     
                     var dataLineValues = new int[numColumns];
 
@@ -43,11 +44,16 @@
                         CopyNumbersOnLineTo(data, ref position, dataLineValues);
                         for (int column = 0; column < numColumns; column++)
                         {
-                            cells[row, column] =  new Cell(row, column, dataLineValues[column], cells);
+                            var cell = new Cell(row, column, dataLineValues[column], cells);
+                            cells[row, column] =  cell;
+                            if (cell.Height > 1)
+                            {
+                                queue.Enqueue(cell);    
+                            }
                         }
                     }
                     
-                    rabbitHouseArrangements.Data[i] = new RabbitHouseArrangement(cells, numRows, numColumns);
+                    rabbitHouseArrangements.Data[i] = new RabbitHouseArrangement(queue);
                     arrangementDataRead.Release(1);
                 }
             });

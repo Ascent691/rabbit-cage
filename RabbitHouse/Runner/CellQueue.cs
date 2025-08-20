@@ -5,16 +5,6 @@ public class CellQueue
     public Cell? Head;
     private Cell? _tail;
 
-    public void EnqueueNonZero(Cell? cell)
-    {
-        if (cell == null || cell.Height == 0)
-        {
-            return;
-        }
-        
-        Enqueue(cell);
-    }
-
     public void Enqueue(Cell? cell)
     {
         if (cell == Head || cell == _tail || cell == null)
