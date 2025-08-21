@@ -41,23 +41,29 @@ public class Cell(
             ReferenceNeighbours();
         }
 
-        return MakeNeighbourSafeToJumpTo(queue, _north) +
-               MakeNeighbourSafeToJumpTo(queue, _east) +
-               MakeNeighbourSafeToJumpTo(queue, _south) +
-               MakeNeighbourSafeToJumpTo(queue, _west);
+        return MakeSafeToJumpTo(queue, _north) +
+               MakeSafeToJumpTo(queue, _east) +
+               MakeSafeToJumpTo(queue, _south) +
+               MakeSafeToJumpTo(queue, _west);
     }
 
-    private int MakeNeighbourSafeToJumpTo(CellQueue queue, Cell? neighbour)
+    private int MakeSafeToJumpTo(CellQueue queue, Cell? neighbour)
     {
         if (neighbour is null) return 0;
         
         var amountAddedToNeighbour = 0;
         
-        var additionalHeightNeededToMakeNeighbourSafeToJumpTo = _height - neighbour._height - 1;
-        if (additionalHeightNeededToMakeNeighbourSafeToJumpTo >= 1)
+        var heightDifference = _height - neighbour._height;
+        if (heightDifference >= 2)
         {
-            neighbour._height += additionalHeightNeededToMakeNeighbourSafeToJumpTo;
-            amountAddedToNeighbour = additionalHeightNeededToMakeNeighbourSafeToJumpTo;
+            var adjustmentToMakeJumpSafe = heightDifference - 1;
+            neighbour._height += adjustmentToMakeJumpSafe;
+            amountAddedToNeighbour = adjustmentToMakeJumpSafe;
+        } else if (heightDifference <= -2)
+        {
+            var adjustmentToMakeJumpSafe = Math.Abs(heightDifference) - 1;
+            _height += adjustmentToMakeJumpSafe;
+            amountAddedToNeighbour = adjustmentToMakeJumpSafe;   
         }
 
         if (neighbour.Next is null && !neighbour.IsSafe())
