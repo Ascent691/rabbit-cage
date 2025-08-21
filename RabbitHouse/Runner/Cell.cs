@@ -23,13 +23,13 @@ public class Cell(
         }
 
         return _height <= 1 ||
-               IsNeighbourSafeToJumpTo(_north) &&
-               IsNeighbourSafeToJumpTo(_east) &&
-               IsNeighbourSafeToJumpTo(_south) &&
-               IsNeighbourSafeToJumpTo(_west);
+               IsSafeToJumpTo(_north) &&
+               IsSafeToJumpTo(_east) &&
+               IsSafeToJumpTo(_south) &&
+               IsSafeToJumpTo(_west);
     }
 
-    private bool IsNeighbourSafeToJumpTo(Cell? neighbour)
+    private bool IsSafeToJumpTo(Cell? neighbour)
     {
         return neighbour == null || _height - neighbour._height <= 1;
     }
